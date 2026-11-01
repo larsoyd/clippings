@@ -13,3 +13,11 @@ check_core = executable('check-core',
     ['tests/check-core.cpp', logic_sources, qt.compile_moc(headers: ['tests/check-core.hpp'] + logic_headers, dependencies: qt_test)],
     dependencies: [qt_test])
 test('core', check_core, env: ['QT_QPA_PLATFORM=offscreen'])
+
+capture_sources = ['capture-session.cpp', 'instance-door.cpp', 'screen-grabber.cpp', 'wayfire-client.cpp']
+capture_headers = ['capture-session.hpp', 'instance-door.hpp', 'screen-grabber.hpp']
+check_capture = executable('check-capture',
+    ['tests/check-capture.cpp', capture_sources, 'frozen-desktop.cpp',
+     qt.compile_moc(headers: ['tests/check-capture.hpp'] + capture_headers, dependencies: qt_test)],
+    dependencies: [qt_test])
+test('capture', check_capture, env: ['QT_QPA_PLATFORM=offscreen'], timeout: 60)
