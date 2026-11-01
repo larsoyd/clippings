@@ -90,6 +90,7 @@ QImage FrozenDesktop::compose(const QRect& area) const
     result.fill(Qt::transparent);
     QPainter painter(&result);
     painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
     for (const FrozenOutput& output : list)
     {
         const QRect part = output.logical & area;
@@ -105,7 +106,6 @@ QImage FrozenDesktop::compose(const QRect& area) const
                            std::lround(part.width() * scale), std::lround(part.height() * scale));
         const QRect target(std::lround(to.x() * target_scale), std::lround(to.y() * target_scale),
                            std::lround(part.width() * target_scale), std::lround(part.height() * target_scale));
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, scale != target_scale);
         painter.drawImage(target, output.image, source);
     }
     return result;

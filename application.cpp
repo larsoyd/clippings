@@ -260,12 +260,6 @@ void Application::quit_if_idle()
     }
 }
 
-void Application::quit_now()
-{
-    session.cancel();
-    QCoreApplication::quit();
-}
-
 QString Application::default_save_url(QObject *object) const
 {
     auto *document = qobject_cast<Document *>(object);

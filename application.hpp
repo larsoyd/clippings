@@ -67,7 +67,6 @@ class Application : public QObject
     Q_INVOKABLE void open_urls(const QList<QUrl>& urls);
     Q_INVOKABLE void close_document(QObject *document);
     Q_INVOKABLE void closed_launcher();
-    Q_INVOKABLE void quit_now();
     Q_INVOKABLE QString default_save_url(QObject *document) const;
     Q_INVOKABLE QString file_of(const QUrl& url) const;
     Q_INVOKABLE QString copy(QObject *document);
@@ -80,7 +79,6 @@ class Application : public QObject
     void ownWindowsChanged();
     void preferencesChanged();
     void alert(const QString& message, const QString& detail);
-    void quitRequested();
 
   private:
     void add_capture(const QImage& image, double density);
@@ -94,5 +92,4 @@ class Application : public QObject
     QSettings preferences;
     bool launcher = false;
     bool windows_hidden = false;
-    int untitled = 0;
 };
