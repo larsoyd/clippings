@@ -1,4 +1,4 @@
-// a round-ended search field; every looks key is optional
+// a round-ended search field, every looks key is optional
 
 import QtQuick
 import QtQuick.Shapes

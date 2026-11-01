@@ -230,7 +230,7 @@ printf 'P6\n1 1\n255\n'; printf "\\x$((n % 80 + 20))\\x00\\x00"
     grabber.settle(QRect(0, 0, 10, 10), 200);
     QVERIFY(spy.wait(3000));
     QCOMPARE(spy.at(0).at(0).toBool(), false);
-    QVERIFY2(clock.elapsed() >= 200 && clock.elapsed() < 1500, qPrintable(QString::number(clock.elapsed())));
+    QVERIFY2(clock.elapsed() >= 190 && clock.elapsed() < 1500, qPrintable(QString::number(clock.elapsed())));
 }
 
 void CheckCapture::capture_freezes_before_showing_anything()

@@ -14,7 +14,7 @@ Item {
     property bool squareTopLeft: false
     property bool squareTopRight: false
 
-    // x of the pointer's tip on the bottom edge; negative for none
+    // x of the pointer's tip on the bottom edge, negative for none
     property real pointerX: -1
     readonly property bool hasPointer: pointerX >= 0 && looks.pointer !== undefined
 
@@ -30,7 +30,7 @@ Item {
         cached: false
     }
 
-    // one colour or a list; each line one pixel further out
+    // one colour or a list, each line one pixel further out
     readonly property var rimColors: {
         if (looks.rim === undefined) {
             return []
@@ -85,7 +85,7 @@ Item {
             PathLine { x: -pointer.halfWidth; y: 0 }
         }
     }
-    // the rim along the pointer's sides; one shape per line since a repeater can't make shapepaths
+    // the rim along the pointer's sides, one shape per line since a repeater can't make shapepaths
     Repeater {
         model: frame.hasPointer ? frame.rimColors : []
         Shape {

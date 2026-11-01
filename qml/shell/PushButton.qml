@@ -12,7 +12,7 @@ Item {
     property var labelFont: fonts.interface
 
     property string text: ""
-    // the one return presses; themes usually colour it
+    // the one return presses, themes usually colour it
     property bool isDefault: false
 
     signal clicked()

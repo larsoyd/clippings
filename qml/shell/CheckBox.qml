@@ -41,6 +41,13 @@ Item {
         radius: 3
         border.color: "#8a8a8a"
         color: box.checked ? "#5199db" : "#ffffff"
+        Text {
+            anchors.centerIn: parent
+            visible: box.checked
+            text: "✓"
+            color: "#ffffff"
+            font.pixelSize: 11
+        }
     }
     Text {
         id: label

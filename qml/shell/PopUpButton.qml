@@ -1,4 +1,4 @@
-// a pop-up button drawn from [controls.popup_button]; its list opens in popupHost
+// a pop-up button drawn from [controls.popup_button], its list opens in popupHost
 
 import QtQuick
 import QtQuick.Window

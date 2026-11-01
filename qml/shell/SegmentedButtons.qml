@@ -1,4 +1,4 @@
-// joined tool bar buttons: every segment shows its part of one shared picture, so the caps stay at the ends
+// joined tool bar buttons, each shows its part of one shared picture so the caps stay put
 
 import QtQuick
 import QtQuick.Window
@@ -55,7 +55,8 @@ Item {
                         : (segment.held || segment.modelData.checked) ? (control.look.pressed ?? control.look.normal)
                         : control.look.normal
                     return picture !== undefined ? ({ image: picture, slice: control.look.slice })
-                                                 : ({ gradient: ["#fbfbfb", "#d8d8d8"], radius: 4, border: { color: "#8a8a8a", width: 1 } })
+                                                 : ({ gradient: segment.held || segment.modelData.checked ? ["#c4c4c4", "#d8d8d8"] : ["#fbfbfb", "#d8d8d8"],
+                                                      radius: 4, border: { color: "#8a8a8a", width: 1 } })
                 }
             }
 

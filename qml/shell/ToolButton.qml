@@ -45,7 +45,8 @@ Item {
                 : (button.held || button.checked) ? (button.look.pressed ?? button.look.normal)
                 : button.look.normal
             return picture !== undefined ? ({ image: picture, slice: button.look.slice })
-                                         : ({ gradient: ["#fbfbfb", "#d8d8d8"], radius: 4, border: { color: "#8a8a8a", width: 1 } })
+                                         : ({ gradient: button.held || button.checked ? ["#c4c4c4", "#d8d8d8"] : ["#fbfbfb", "#d8d8d8"],
+                                              radius: 4, border: { color: "#8a8a8a", width: 1 } })
         }
     }
 

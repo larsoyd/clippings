@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# builds this tree for this user and makes it the Clippings the desktop starts
+# a desktop entry without the store's mark is the user's, so the app store leaves this build alone
+set -euo pipefail
+
+source=$(cd "$(dirname "$0")/.." && pwd)
+data=${XDG_DATA_HOME:-$HOME/.local/share}
+prefix=$HOME/.local/opt/clippings
+art=$data/clippings/art
+entry=$data/applications/clippings.desktop
+
+[[ -s $art/clippings-512.png ]] || { echo "refused: no icon in $art, run packaging/import-art first" >&2; exit 1; }
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+timeout 60 meson setup "$work/build" "$source" --prefix="$prefix" --buildtype=release >/dev/null
+timeout 900 meson compile -C "$work/build" clippings >/dev/null
+timeout 60 meson install -C "$work/build" >/dev/null
+
+for size in 16 32 256 512 1024; do
+    icons=$prefix/share/icons/hicolor/${size}x${size}/apps
+    mkdir -p "$icons"
+    cp "$art/clippings-$size.png" "$icons/clippings.png"
+done
+
+mkdir -p "$(dirname "$entry")"
+sed -e "s|^Exec=clippings %U|Exec=$prefix/bin/clippings %U|" \
+    -e "s|^Exec=clippings --capture selection|Exec=$prefix/bin/clippings --capture selection|" \
+    -e "s|^Icon=.*|Icon=$prefix/share/icons/hicolor/512x512/apps/clippings.png|" \
+    "$source/data/clippings.desktop" > "$entry.new"
+mv "$entry.new" "$entry"
+timeout 30 update-desktop-database "$(dirname "$entry")" || echo "[install-local] desktop database not refreshed"
+echo "[install-local] prefix=$prefix entry=$entry"

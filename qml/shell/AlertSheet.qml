@@ -11,7 +11,7 @@ Item {
     property string iconSource: ""
     property string message: ""
     property string detail: ""
-    // left to right; the last is the default, return presses it
+    // left to right, the last is the default, return presses it
     property var buttons: []
     property int topInset: 0
     // what escape presses

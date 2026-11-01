@@ -1,4 +1,4 @@
-// the frozen picture of one display, with the selection drawn over it. every display shows the same state
+// the frozen picture of one display with the shared selection over it
 
 import QtQuick
 import QtQuick.Effects

@@ -1,4 +1,4 @@
-// a template picture with the etched highlight of a tool bar; words where the picture is missing
+// a template picture with the etched highlight of a tool bar, words where the picture is missing
 
 import QtQuick
 import QtQuick.Window

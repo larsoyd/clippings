@@ -1,4 +1,4 @@
-// one menu box; items are { id, label, enabled, separator, checkable, checked, shortcut, children, slider }
+// one menu box, each item holds id, label, enabled, separator, shortcut and children
 
 import QtQuick
 import QtQuick.Shapes
@@ -27,7 +27,7 @@ Item {
     property real pointerX: -1
     readonly property var font: settings.theme.fonts.menu
 
-    // hoveredIndex is also the keyboard mark; -1 for none
+    // hoveredIndex is also the keyboard mark, -1 for none
     property int hoveredIndex: -1
     property int submenuIndex: -1
 
@@ -36,7 +36,7 @@ Item {
         submenuIndex = -1
     }
 
-    // --- keyboard; the owner forwards keys to innermost()
+    // --- keyboard, the owner forwards keys to innermost()
 
     property var parentMenu: null
     property var openSubmenu: null
@@ -50,7 +50,7 @@ Item {
         return item !== undefined && !item.separator && item.enabled
     }
 
-    // by is 1 or -1; wraps around
+    // by is 1 or -1, wraps around
     function moveMark(by) {
         const count = items.length
         let index = hoveredIndex
@@ -399,7 +399,7 @@ Item {
                         || row.mapToItem(null, row.width, 0).x + item.width <= menu.Window.width
                     onLoaded: {
                         menu.openSubmenu = item
-                        // to the right, or left if it wouldn't fit; raised by the padding so the first rows line up
+                        // to the right, or left if it wouldn't fit, raised by the padding so the first rows line up
                         // bindings because the submenu's width is only known once its rows are measured
                         item.x = Qt.binding(() => submenu.fitsAfter ? row.width : -item.width)
                         item.y = -menu.looks.padding
