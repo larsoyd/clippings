@@ -1,6 +1,7 @@
 // a pop-up button drawn from [controls.popup_button]; its list opens in popupHost
 
 import QtQuick
+import QtQuick.Window
 import "ThemeValues.js" as ThemeValues
 
 Item {
@@ -30,6 +31,7 @@ Item {
         const at = button.mapToItem(popupHost, 0, button.height)
         list.parent = popupHost
         list.openAt = at
+        list.returnFocusTo = button.Window.activeFocusItem
         list.opened = true
         list.forceActiveFocus()
     }

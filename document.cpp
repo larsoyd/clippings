@@ -5,6 +5,7 @@
 #include <QFileInfo>
 
 static const int MOST_STATES = 200;
+static const QColor HIGHLIGHT_COLOR(0xff, 0xe4, 0x4d);
 
 Document::Document(const QImage& image, const QString& title, double density, QObject *parent)
     : QObject(parent), source(image.convertToFormat(QImage::Format_ARGB32_Premultiplied)), name(title),
@@ -193,6 +194,10 @@ Annotation Document::styled(Tool kind) const
     if (kind == Tool::Redact)
     {
         annotation.stroke = Qt::black;
+    }
+    else if (kind == Tool::Highlight)
+    {
+        annotation.stroke = HIGHLIGHT_COLOR;
     }
     return annotation;
 }

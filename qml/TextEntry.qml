@@ -35,6 +35,7 @@ Item {
         } else {
             document.add_text(sourceX, sourceY, input.text)
         }
+        document.tool = 0
         canvas.forceActiveFocus()
     }
 

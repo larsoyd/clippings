@@ -525,6 +525,8 @@ void CaptureSession::accept()
         return;
     }
 
+    std::fprintf(stderr, "[capture] accepted mode=%d delay=%d area=%d,%d %dx%d\n", int(current_mode), delay_seconds,
+                 target().x(), target().y(), target().width(), target().height());
     if (overlays)
     {
         overlays->hide_selection();

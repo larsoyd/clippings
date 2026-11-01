@@ -169,9 +169,9 @@ void DocumentCanvas::update_fit()
         return;
     }
 
+    // a picture's own density decides its natural size, on any display
     const QSize size = shown->image_size();
-    const double dpr = window() ? window()->devicePixelRatio() : 1.0;
-    const double next = std::min({width() / size.width(), height() / size.height(), 1 / dpr});
+    const double next = std::min({width() / size.width(), height() / size.height(), 1 / shown->density()});
     if (next != scale)
     {
         scale = std::max(next, SMALLEST_ZOOM);

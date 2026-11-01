@@ -10,6 +10,7 @@ Item {
     property int current: -1
     property point openAt: Qt.point(0, 0)
     property bool opened: false
+    property Item returnFocusTo: null
 
     signal chosenIndex(int index)
 
@@ -19,6 +20,9 @@ Item {
 
     function close() {
         opened = false
+        if (returnFocusTo !== null) {
+            returnFocusTo.forceActiveFocus()
+        }
     }
 
     Keys.onEscapePressed: close()

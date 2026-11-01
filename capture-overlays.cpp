@@ -79,11 +79,34 @@ void CaptureOverlays::show_selection()
         layer->setAnchors(LayerShellQt::Window::Anchors(LayerShellQt::Window::AnchorTop | LayerShellQt::Window::AnchorBottom
                                                         | LayerShellQt::Window::AnchorLeft | LayerShellQt::Window::AnchorRight));
         layer->setExclusiveZone(-1);
-        layer->setKeyboardInteractivity(LayerShellQt::Window::KeyboardInteractivityExclusive);
+        layer->setKeyboardInteractivity(screen->name() == session.pointer_output()
+                                            ? LayerShellQt::Window::KeyboardInteractivityExclusive
+                                            : LayerShellQt::Window::KeyboardInteractivityNone);
         layer->setWantsToBeOnActiveScreen(false);
         layer->setScreen(screen);
         view->show();
         views.append(view);
+    }
+
+    keyboard_output = session.pointer_output();
+    QObject::connect(&session, &CaptureSession::selectionChanged, views.first(), [this] { follow_pointer(); });
+}
+
+// only the surface under the pointer may hold the keyboard, its pop-ups need the keys
+void CaptureOverlays::follow_pointer()
+{
+    const QString output = session.pointer_output();
+    if (output.isEmpty() || output == keyboard_output)
+    {
+        return;
+    }
+
+    keyboard_output = output;
+    for (QQuickView *view : std::as_const(views))
+    {
+        LayerShellQt::Window::get(view)->setKeyboardInteractivity(view->screen()->name() == output
+                                                                      ? LayerShellQt::Window::KeyboardInteractivityExclusive
+                                                                      : LayerShellQt::Window::KeyboardInteractivityNone);
     }
 }
 

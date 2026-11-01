@@ -30,6 +30,7 @@ Item {
         const at = well.mapToItem(popupHost, 0, well.height + 2)
         panel.x = Math.max(0, Math.min(at.x, popupHost.width - panel.width))
         panel.y = at.y
+        grid.returnFocusTo = well.Window.activeFocusItem
         grid.visible = true
         grid.forceActiveFocus()
     }
@@ -78,11 +79,18 @@ Item {
         anchors.fill: parent
         visible: false
         z: 1000
-        Keys.onEscapePressed: visible = false
+        property Item returnFocusTo: null
+        function close() {
+            visible = false
+            if (returnFocusTo !== null) {
+                returnFocusTo.forceActiveFocus()
+            }
+        }
+        Keys.onEscapePressed: close()
 
         MouseArea {
             anchors.fill: parent
-            onPressed: grid.visible = false
+            onPressed: grid.close()
         }
         Rectangle {
             id: panel
@@ -109,7 +117,7 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                grid.visible = false
+                                grid.close()
                                 well.picked(parent.color)
                             }
                         }
@@ -126,7 +134,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        grid.visible = false
+                        grid.close()
                         well.picked("transparent")
                     }
                 }

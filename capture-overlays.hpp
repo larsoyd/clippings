@@ -34,10 +34,12 @@ class CaptureOverlays : public OverlayHost
 
   private:
     QQuickView *make_view(const QString& file, const QVariantMap& properties);
+    void follow_pointer();
 
     QQmlEngine& engine;
     const CaptureSession& session;
     QString qml_directory;
     QList<QQuickView *> views;
+    QString keyboard_output;
     QQuickView *countdown = nullptr;
 };

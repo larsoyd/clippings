@@ -35,6 +35,7 @@ Window {
         const screenHeight = Screen.height > 0 ? Screen.height : 800
         width = Math.max(640, Math.min(document.imageSize.width / scale, screenWidth * 0.8))
         height = Math.min(document.imageSize.height / scale, screenHeight * 0.75) + barHeight + editBarHeight
+        document.fontFamily = Look.value(settings, "text_font", "Helvetica")
         canvas.forceActiveFocus()
     }
 
