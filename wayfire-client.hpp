@@ -17,6 +17,7 @@ class WayfireClient : public Compositor
     QList<DisplayInfo> displays() const override;
     QList<WindowInfo> windows() const override;
     qint64 focused() const override;
+    QPoint pointer() const override;
     bool focus(qint64 id) const override;
     QImage window_picture(qint64 id, const QString& file) const override;
 

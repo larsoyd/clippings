@@ -1,26 +1,44 @@
+// what the program shows: a window per document, and the panels they share
+
 import QtQuick
 import QtQuick.Window
-import "shell/ThemeValues.js" as ThemeValues
 
-Window {
-    id: window
+QtObject {
+    id: root
 
-    readonly property var controls: settings.theme.controls ?? ({})
-    // the theme's own [clippings] table, when it has one
-    readonly property var looks: settings.theme["clippings"] ?? ({})
-    readonly property var words: (settings.config["clippings"] ?? ({})).words ?? ({})
+    property Instantiator editors: Instantiator {
+        model: app.documents
+        delegate: EditorWindow {
+            required property var modelData
+            document: modelData
+            shell: root
+        }
+    }
 
-    visible: true
-    title: words.title ?? "Clippings"
-    width: looks.width ?? 480
-    height: looks.height ?? 320
-    color: ThemeValues.color(looks.background ?? controls.window_color ?? "#ededed")
+    property LauncherWindow launcher: LauncherWindow {
+        shell: root
+    }
+    property PreferencesWindow preferences: PreferencesWindow {}
+    property AboutWindow about: AboutWindow {}
+    property HelpWindow help: HelpWindow {}
+    property AlertWindow alerts: AlertWindow {}
 
-    Text {
-        anchors.centerIn: parent
-        text: window.title
-        color: ThemeValues.color(window.controls.text_color ?? "#000000")
-        font.family: settings.theme.fonts.interface.family
-        font.pixelSize: settings.theme.fonts.interface.size
+    // closes each window in turn, an unsaved document's sheet can stop it
+    function quitAll() {
+        for (let index = editors.count - 1; index >= 0; index--) {
+            const editor = editors.objectAt(index)
+            if (editor !== null && editor.document.modified) {
+                editor.requestAccess(() => quitAll())
+                return
+            }
+        }
+        app.quit_now()
+    }
+
+    property Connections quitting: Connections {
+        target: app
+        function onQuitRequested() {
+            root.quitAll()
+        }
     }
 }

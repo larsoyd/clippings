@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# takes the icon and tool pictures from an installer you own, apple's art is never part of this repository
+# usage: import-art installer [art folder]
+set -euo pipefail
+installer=${1:-}
+out=${2:-${XDG_DATA_HOME:-$HOME/.local/share}/clippings/art}
+packages="OS X Base System/System/Installation/Packages"
+[[ -r $installer ]] || { echo "refused: no installer path=$installer" >&2; exit 1; }
+for tool in 7z lbzip2 cpio icns2png pdftocairo magick sha256sum; do
+    command -v "$tool" >/dev/null || { echo "refused: missing tool=$tool" >&2; exit 1; }
+done
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+# 7z exits 2 on this image for a trailing size mismatch, so the files themselves are checked instead
+take_app() { # package pattern
+    timeout 280 7z x -y -o"$work/pk" "$installer" "$packages/$1.pkg" >/dev/null 2>&1 || true
+    [[ -s "$work/pk/$packages/$1.pkg" ]] || { echo "refused: no package=$1" >&2; exit 1; }
+    (cd "$work/root" && timeout 280 bash -c '7z x -txar -so "$0" Payload 2>/dev/null | lbzip2 -d | cpio -idu --quiet "$1"' \
+        "$work/pk/$packages/$1.pkg" "$2")
+    rm -f "$work/pk/$packages/$1.pkg"
+}
+
+mkdir -p "$work/root" "$work/icon" "$work/art/glyphs"
+take_app AdditionalEssentials './Applications/Utilities/Grab.app/Contents/Resources/appicon.icns'
+take_app Essentials './Applications/Preview.app/Contents/Resources/*.pdf'
+
+grab="$work/root/Applications/Utilities/Grab.app/Contents/Resources/appicon.icns"
+preview="$work/root/Applications/Preview.app/Contents/Resources"
+expected=d5e69a62f1fb61d1a4533aed4d366674aba8fc4b8dd5402ae87f4a9162416e36
+[[ $(sha256sum "$grab" | cut -d' ' -f1) == "$expected" ]] || { echo "refused: unexpected icon in $installer" >&2; exit 1; }
+
+icns2png -x -o "$work/icon" "$grab" >/dev/null 2>&1 || true
+for size in 16 32 256 512 1024; do
+    picture="$work/icon/appicon_${size}x${size}x32.png"
+    [[ -s $picture ]] || { echo "refused: no icon size=$size" >&2; exit 1; }
+    cp "$picture" "$work/art/clippings-$size.png"
+done
+
+for name in TB_selection TB_crop TB_annotArrowTemplate TB_annotLineThicknessTemplate TB_annotRectangleTemplate \
+            TB_annotEllipseTemplate TB_annotTextPlainTemplate TB_edit TB_annotMarkupHighlightTemplate \
+            TB_annotColorWellBase TB_actualSize TB_fitPopup TB_zoomIn TB_zoomOut InspectorGeneralInfo; do
+    [[ -s $preview/$name.pdf ]] || { echo "refused: no picture=$name" >&2; exit 1; }
+    # png, these pdfs carry soft masks that an svg renderer may drop
+    pdftocairo -png -transp -singlefile -scale-to 64 "$preview/$name.pdf" "$work/art/glyphs/$name"
+    magick "$work/art/glyphs/$name.png" -channel RGB -evaluate set 100% +channel "$work/art/glyphs/$name-white.png"
+done
+
+mkdir -p "$(dirname "$out")"
+rm -rf "$out.new"
+mv "$work/art" "$out.new"
+rm -rf "$out"
+mv "$out.new" "$out"
+echo "[import-art] out=$out icons=$(ls "$out" | grep -c png) glyphs=$(ls "$out/glyphs" | wc -l)"

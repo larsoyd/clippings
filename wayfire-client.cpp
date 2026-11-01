@@ -161,6 +161,12 @@ qint64 WayfireClient::focused() const
         : -1;
 }
 
+QPoint WayfireClient::pointer() const
+{
+    const QJsonObject position = call(QStringLiteral("window-rules/get_cursor_position")).value(QLatin1String("pos")).toObject();
+    return QPoint(position.value(QLatin1String("x")).toInt(), position.value(QLatin1String("y")).toInt());
+}
+
 bool WayfireClient::focus(qint64 id) const
 {
     const QJsonObject reply = call(QStringLiteral("window-rules/focus-view"), {{QStringLiteral("id"), id}});

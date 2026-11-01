@@ -11,6 +11,13 @@ static const int SETTLE_DEADLINE_MS = 1500;
 static const int OWN_WINDOW_POLL_MS = 10;
 static const int OWN_WINDOW_POLLS = 150;
 
+// edges rather than pixels, a drag of 300 points selects 300 points
+static QRect spanned(const QPoint& one, const QPoint& other)
+{
+    return QRect(QPoint(std::min(one.x(), other.x()), std::min(one.y(), other.y())),
+                 QSize(std::abs(one.x() - other.x()), std::abs(one.y() - other.y())));
+}
+
 CaptureSession::CaptureSession(Compositor& wayfire, ScreenGrabber& screens, qint64 pid, QObject *parent)
     : QObject(parent), compositor(wayfire), grabber(screens), own_pid(pid)
 {
@@ -142,6 +149,17 @@ int CaptureSession::remaining() const
     return seconds_left;
 }
 
+QPoint CaptureSession::pointer_position() const
+{
+    return pointer_at;
+}
+
+QString CaptureSession::pointer_output() const
+{
+    const FrozenOutput *output = frozen.output_at(pointer_at);
+    return output ? output->name : QString();
+}
+
 const FrozenDesktop& CaptureSession::desktop() const
 {
     return frozen;
@@ -178,6 +196,7 @@ bool CaptureSession::begin(int mode, bool leave_out_own_windows)
     cycled_window = -1;
     focused_before = compositor.focused();
     windows = compositor.windows();
+    pointer_at = compositor.pointer();
 
     QRect own_area;
     for (const WindowInfo& window : windows)
@@ -326,7 +345,7 @@ void CaptureSession::pointer_moved(int x, int y)
     const QPoint at = pointer_at;
     if (drag == Drag::New)
     {
-        set_selection(QRect(drag_start, at).normalized());
+        set_selection(spanned(drag_start, at));
         return;
     }
     if (drag == Drag::Move)
@@ -341,25 +360,26 @@ void CaptureSession::pointer_moved(int x, int y)
     if (drag == Drag::Resize)
     {
         // handles count clockwise from the top left, odd ones sit on an edge's middle
-        QRect resized = drag_chosen;
+        QPoint first = drag_chosen.topLeft();
+        QPoint second = drag_chosen.topLeft() + QPoint(drag_chosen.width(), drag_chosen.height());
         const int handle = drag_handle;
         if (handle == 7 || handle == 0 || handle == 6)
         {
-            resized.setLeft(at.x());
+            first.setX(at.x());
         }
         if (handle == 2 || handle == 3 || handle == 4)
         {
-            resized.setRight(at.x());
+            second.setX(at.x());
         }
         if (handle == 0 || handle == 1 || handle == 2)
         {
-            resized.setTop(at.y());
+            first.setY(at.y());
         }
         if (handle == 4 || handle == 5 || handle == 6)
         {
-            resized.setBottom(at.y());
+            second.setY(at.y());
         }
-        set_selection(resized.normalized());
+        set_selection(spanned(first, second));
         return;
     }
     emit selectionChanged();
@@ -372,11 +392,14 @@ int CaptureSession::handle_at(const QPoint& point) const
         return -1;
     }
 
-    const QPoint middle = chosen.center();
-    const QPoint places[] = {
-        chosen.topLeft(),     QPoint(middle.x(), chosen.top()),     chosen.topRight(),    QPoint(chosen.right(), middle.y()),
-        chosen.bottomRight(), QPoint(middle.x(), chosen.bottom()), chosen.bottomLeft(), QPoint(chosen.left(), middle.y()),
-    };
+    const int left = chosen.left();
+    const int top = chosen.top();
+    const int right = left + chosen.width();
+    const int bottom = top + chosen.height();
+    const int middle_x = left + chosen.width() / 2;
+    const int middle_y = top + chosen.height() / 2;
+    const QPoint places[] = {{left, top}, {middle_x, top}, {right, top}, {right, middle_y},
+                             {right, bottom}, {middle_x, bottom}, {left, bottom}, {left, middle_y}};
     for (int index = 0; index < 8; index++)
     {
         if ((places[index] - point).manhattanLength() <= HANDLE_REACH * 2)
@@ -424,8 +447,8 @@ void CaptureSession::released(int x, int y)
         return;
     }
 
-    if (drag == Drag::New && (QRect(drag_start, pointer_at).normalized().size().width() < SMALLEST_DRAG
-                              || QRect(drag_start, pointer_at).normalized().size().height() < SMALLEST_DRAG))
+    const QRect dragged = spanned(drag_start, pointer_at);
+    if (drag == Drag::New && (dragged.width() < SMALLEST_DRAG || dragged.height() < SMALLEST_DRAG))
     {
         set_selection(QRect());
     }

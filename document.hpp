@@ -28,6 +28,7 @@ class Document : public QObject
     Q_PROPERTY(double fontSize READ font_size WRITE set_font_size NOTIFY styleChanged)
     Q_PROPERTY(QString fontFamily READ font_family WRITE set_font_family NOTIFY styleChanged)
     Q_PROPERTY(int selected READ selected WRITE set_selected NOTIFY selectedChanged)
+    Q_PROPERTY(int annotationCount READ annotation_count NOTIFY historyChanged)
 
   public:
     Document(const QImage& source, const QString& title, double density, QObject *parent = nullptr);
@@ -57,6 +58,7 @@ class Document : public QObject
     void set_selected(int index);
 
     const QList<Annotation>& annotations() const;
+    int annotation_count() const;
     // the whole source with the edits burned in, before cropping
     const QImage& composed() const;
     QImage composed_with(const Annotation& preview) const;
@@ -77,6 +79,8 @@ class Document : public QObject
     Q_INVOKABLE QString text_of(int index) const;
     // empty on success, otherwise the reason it failed
     Q_INVOKABLE QString save_to(const QString& path);
+    // the changes are given up, so closing asks nothing more
+    Q_INVOKABLE void discard();
     // a file opened as it is counts as saved
     void opened_from(const QString& path);
 

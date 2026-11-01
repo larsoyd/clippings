@@ -1,7 +1,16 @@
 [Desktop Entry]
 Type=Application
 Name=Clippings
-Exec=clippings
+GenericName=Screen Capture
+Comment=Capture the screen and mark it up
+Exec=clippings %U
 Icon=clippings
-Categories=Utility;
+Categories=Utility;Graphics;
+MimeType=image/png;image/jpeg;image/tiff;image/webp;
 StartupWMClass=clippings
+Actions=Capture;
+X-Mavernix-JoinedToolBar=true
+
+[Desktop Action Capture]
+Name=Capture Selection
+Exec=clippings --capture selection

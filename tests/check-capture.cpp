@@ -30,6 +30,7 @@ class FakeCompositor : public Compositor
     QList<DisplayInfo> displays() const override { return shown; }
     QList<WindowInfo> windows() const override { return open; }
     qint64 focused() const override { return has_focus; }
+    QPoint pointer() const override { return {}; }
     bool focus(qint64 id) const override { focused_calls.append(id); return true; }
     QImage window_picture(qint64 id, const QString&) const override { return pictures.value(id); }
 };
@@ -253,7 +254,7 @@ void CheckCapture::second_begin_is_refused_and_changes_nothing()
     rig.drag(QPoint(10, 10), QPoint(40, 40));
     QVERIFY(!rig.session.begin(CaptureSession::Screen, false));
     QCOMPARE(rig.session.mode(), int(CaptureSession::Selection));
-    QCOMPARE(rig.session.selection(), QRect(QPoint(10, 10), QPoint(40, 40)));
+    QCOMPARE(rig.session.selection(), QRect(10, 10, 30, 30));
     QCOMPARE(rig.overlays.selection_shown, 1);
     QCOMPARE(rig.grab_count(), 2);
 }
@@ -265,10 +266,11 @@ void CheckCapture::drag_selects_and_accept_composes()
     rig.session.begin(CaptureSession::Selection, false);
     QVERIFY(rig.frozen());
     rig.drag(QPoint(10, 10), QPoint(41, 31));
+    QCOMPARE(rig.session.selection(), QRect(10, 10, 31, 21));
     rig.session.accept();
     QCOMPARE(spy.size(), 1);
     const QImage image = spy.at(0).at(0).value<QImage>();
-    QCOMPARE(image.size(), QSize(64, 44));
+    QCOMPARE(image.size(), QSize(62, 42));
     QCOMPARE(image.pixelColor(3, 3), QColor(Qt::blue));
     QCOMPARE(spy.at(0).at(1).toDouble(), 2.0);
     QCOMPARE(rig.session.state(), CaptureSession::State::Idle);
@@ -284,7 +286,7 @@ void CheckCapture::selection_crosses_displays()
     rig.drag(QPoint(-20, 10), QPoint(19, 29));
     rig.session.accept();
     const QImage image = spy.at(0).at(0).value<QImage>();
-    QCOMPARE(image.size(), QSize(80, 40));
+    QCOMPARE(image.size(), QSize(78, 38));
     QCOMPARE(image.pixelColor(5, 5), QColor(Qt::red));
     QCOMPARE(image.pixelColor(70, 5), QColor(Qt::blue));
 }
@@ -319,14 +321,16 @@ void CheckCapture::selection_moves_and_resizes()
     rig.drag(QPoint(30, 30), QPoint(35, 37));
     QCOMPARE(rig.session.selection(), first.translated(5, 7));
     const QRect second = rig.session.selection();
-    rig.drag(second.bottomRight(), second.bottomRight() + QPoint(10, 5));
+    const QPoint corner = second.topLeft() + QPoint(second.width(), second.height());
+    rig.drag(corner, corner + QPoint(10, 5));
     QCOMPARE(rig.session.selection().topLeft(), second.topLeft());
-    QCOMPARE(rig.session.selection().bottomRight(), second.bottomRight() + QPoint(10, 5));
+    QCOMPARE(rig.session.selection().size(), second.size() + QSize(10, 5));
     const QRect third = rig.session.selection();
-    rig.drag(QPoint(third.left(), third.center().y()), QPoint(third.left() - 8, third.center().y() + 20));
+    const QPoint left_edge(third.left(), third.top() + third.height() / 2);
+    rig.drag(left_edge, left_edge + QPoint(-8, 20));
     QCOMPARE(rig.session.selection().left(), third.left() - 8);
     QCOMPARE(rig.session.selection().top(), third.top());
-    QCOMPARE(rig.session.selection().bottom(), third.bottom());
+    QCOMPARE(rig.session.selection().height(), third.height());
     rig.drag(rig.session.selection().center(), QPoint(5000, 5000));
     QCOMPARE(rig.session.selection().right(), 99);
     QCOMPARE(rig.session.selection().bottom(), 99);
@@ -514,7 +518,7 @@ void CheckCapture::countdown_grabs_a_fresh_picture()
     QVERIFY(spy.wait(9000));
     QVERIFY(rig.grab_count() > before + 2);
     QVERIFY(rig.overlays.countdown_hidden >= 1);
-    QCOMPARE(spy.at(0).at(0).value<QImage>().size(), QSize(62, 62));
+    QCOMPARE(spy.at(0).at(0).value<QImage>().size(), QSize(60, 60));
 }
 
 void CheckCapture::cancel_during_countdown_grabs_nothing()

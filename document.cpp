@@ -317,6 +317,17 @@ QString Document::save_to(const QString& path)
     return {};
 }
 
+void Document::discard()
+{
+    saved_at = at;
+    emit historyChanged();
+}
+
+int Document::annotation_count() const
+{
+    return int(state().annotations.size());
+}
+
 void Document::opened_from(const QString& path)
 {
     file_path = path;

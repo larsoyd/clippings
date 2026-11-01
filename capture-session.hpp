@@ -25,6 +25,8 @@ class CaptureSession : public QObject
     Q_PROPERTY(QString targetTitle READ target_title NOTIFY selectionChanged)
     Q_PROPERTY(QSize pixelSize READ pixel_size NOTIFY selectionChanged)
     Q_PROPERTY(int remaining READ remaining NOTIFY remainingChanged)
+    Q_PROPERTY(QPoint pointerAt READ pointer_position NOTIFY selectionChanged)
+    Q_PROPERTY(QString pointerOutput READ pointer_output NOTIFY selectionChanged)
 
   public:
     enum Mode
@@ -64,6 +66,8 @@ class CaptureSession : public QObject
     QString target_title() const;
     QSize pixel_size() const;
     int remaining() const;
+    QPoint pointer_position() const;
+    QString pointer_output() const;
     const FrozenDesktop& desktop() const;
     // grows on every freeze, so image urls never serve an older picture
     int generation() const;
