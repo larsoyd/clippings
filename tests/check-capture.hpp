@@ -27,6 +27,7 @@ class CheckCapture : public QObject
     void selection_moves_and_resizes();
     void keyboard_nudges_selection_inside_desktop();
     void window_mode_uses_the_window_picture();
+    void window_picture_keeps_its_own_density();
     void window_mode_falls_back_to_the_frozen_screen();
     void screen_and_all_modes();
     void cancel_restores_focus_and_gives_nothing();

@@ -386,6 +386,26 @@ void CheckCapture::window_mode_uses_the_window_picture()
     QCOMPARE(spy.at(0).at(1).toDouble(), 2.0);
 }
 
+void CheckCapture::window_picture_keeps_its_own_density()
+{
+    Rig rig;
+    WindowInfo window;
+    window.id = 13;
+    window.pid = 1;
+    window.geometry = QRect(-20, 10, 40, 30);
+    rig.compositor.open = {window};
+    QImage picture(40, 30, QImage::Format_ARGB32_Premultiplied);
+    picture.fill(Qt::green);
+    rig.compositor.pictures.insert(13, picture);
+
+    QSignalSpy spy(&rig.session, &CaptureSession::finished);
+    rig.session.begin(CaptureSession::Window, false);
+    QVERIFY(rig.frozen());
+    rig.session.pointer_moved(0, 20);
+    rig.session.accept();
+    QCOMPARE(spy.at(0).at(1).toDouble(), 1.0);
+}
+
 void CheckCapture::window_mode_falls_back_to_the_frozen_screen()
 {
     Rig rig;
