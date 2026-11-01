@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Clippings
+Exec=clippings
+Icon=clippings
+Categories=Utility;
+StartupWMClass=clippings

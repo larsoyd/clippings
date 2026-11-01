@@ -1,0 +1,5 @@
+title = "Clippings"
+summary = "One line, under the name"
+icon = "clippings.svg"
+command = "bin/clippings"
+desktop_entry = "share/applications/clippings.desktop"
