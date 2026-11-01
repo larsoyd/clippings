@@ -6,6 +6,12 @@ import "shell/ThemeValues.js" as ThemeValues
 import "Look.js" as Look
 
 Window {
+    id: help
+
+    property bool wanted: false
+    visible: wanted && !app.ownWindowsHidden
+    onClosing: wanted = false
+
     title: "Clippings Help"
     width: 440
     height: 280

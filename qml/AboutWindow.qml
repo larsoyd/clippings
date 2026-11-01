@@ -8,6 +8,10 @@ import "Look.js" as Look
 Window {
     id: about
 
+    property bool wanted: false
+    visible: wanted && !app.ownWindowsHidden
+    onClosing: wanted = false
+
     title: "About Clippings"
     width: 284
     height: 220

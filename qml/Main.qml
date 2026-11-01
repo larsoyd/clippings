@@ -9,8 +9,6 @@ QtObject {
     property Instantiator editors: Instantiator {
         model: app.documents
         delegate: EditorWindow {
-            required property var modelData
-            document: modelData
             shell: root
         }
     }
@@ -27,7 +25,7 @@ QtObject {
     function quitAll() {
         for (let index = editors.count - 1; index >= 0; index--) {
             const editor = editors.objectAt(index)
-            if (editor !== null && editor.document.modified) {
+            if (editor !== null && editor.document !== null && editor.document.modified) {
                 editor.requestAccess(() => quitAll())
                 return
             }

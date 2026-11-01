@@ -18,6 +18,47 @@
 
 static const int THUMBNAIL_SIDE = 96;
 
+int DocumentList::rowCount(const QModelIndex& parent) const
+{
+    return parent.isValid() ? 0 : int(list.size());
+}
+
+QVariant DocumentList::data(const QModelIndex& index, int role) const
+{
+    return index.isValid() && role == Qt::UserRole ? QVariant::fromValue(static_cast<QObject *>(list[index.row()])) : QVariant();
+}
+
+QHash<int, QByteArray> DocumentList::roleNames() const
+{
+    return {{Qt::UserRole, "document"}};
+}
+
+void DocumentList::add(Document *document)
+{
+    beginInsertRows({}, int(list.size()), int(list.size()));
+    list.append(document);
+    endInsertRows();
+}
+
+bool DocumentList::remove(Document *document)
+{
+    const int row = int(list.indexOf(document));
+    if (row < 0)
+    {
+        return false;
+    }
+
+    beginRemoveRows({}, row, row);
+    list.removeAt(row);
+    endRemoveRows();
+    return true;
+}
+
+bool DocumentList::empty() const
+{
+    return list.isEmpty();
+}
+
 Application::Application(CaptureSession& capture, WayfireClient& wayfire, QObject *parent)
     : QObject(parent), session(capture), compositor(wayfire), preferences(QStringLiteral("clippings"), QStringLiteral("clippings"))
 {
@@ -40,14 +81,9 @@ Application::Application(CaptureSession& capture, WayfireClient& wayfire, QObjec
     });
 }
 
-QVariantList Application::documents() const
+DocumentList *Application::documents()
 {
-    QVariantList list;
-    for (Document *document : open_documents)
-    {
-        list.append(QVariant::fromValue(static_cast<QObject *>(document)));
-    }
-    return list;
+    return &open_documents;
 }
 
 bool Application::launcher_shown() const
@@ -130,7 +166,7 @@ void Application::run_command(const QJsonObject& command)
         return;
     }
 
-    if (open_documents.isEmpty())
+    if (open_documents.empty())
     {
         set_launcher_shown(true);
     }
@@ -146,7 +182,7 @@ void Application::capture_failed(const QString& reason)
 {
     std::fprintf(stderr, "[capture] failed reason=%s\n", qPrintable(reason));
     emit alert(QStringLiteral("The screen could not be captured."), reason);
-    if (open_documents.isEmpty())
+    if (open_documents.empty())
     {
         set_launcher_shown(true);
     }
@@ -165,8 +201,7 @@ void Application::add_capture(const QImage& image, double density)
 
 void Application::add_document(Document *document)
 {
-    open_documents.append(document);
-    emit documentsChanged();
+    open_documents.add(document);
 }
 
 void Application::open_urls(const QList<QUrl>& urls)
@@ -188,7 +223,7 @@ void Application::open_urls(const QList<QUrl>& urls)
         add_document(document);
     }
 
-    if (!open_documents.isEmpty())
+    if (!open_documents.empty())
     {
         set_launcher_shown(false);
     }
@@ -201,12 +236,11 @@ void Application::open_urls(const QList<QUrl>& urls)
 void Application::close_document(QObject *object)
 {
     auto *document = qobject_cast<Document *>(object);
-    if (!document || !open_documents.removeOne(document))
+    if (!document || !open_documents.remove(document))
     {
         return;
     }
 
-    emit documentsChanged();
     document->deleteLater();
     quit_if_idle();
 }
@@ -219,7 +253,7 @@ void Application::closed_launcher()
 
 void Application::quit_if_idle()
 {
-    if (open_documents.isEmpty() && !launcher && !session.running())
+    if (open_documents.empty() && !launcher && !session.running())
     {
         std::fprintf(stderr, "[application] quitting, nothing left open\n");
         QCoreApplication::quit();

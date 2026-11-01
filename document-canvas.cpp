@@ -126,8 +126,10 @@ QRect DocumentCanvas::crop_draft() const
 
 QPointF DocumentCanvas::origin() const
 {
-    return QPointF(std::max(0.0, (width() - view_width()) / 2) - scroll_left,
-                   std::max(0.0, (height() - view_height()) / 2) - scroll_top);
+    // whole device pixels, a half pixel offset would blur every line of the picture
+    const double dpr = window() ? window()->devicePixelRatio() : 1.0;
+    return QPointF(std::round((std::max(0.0, (width() - view_width()) / 2) - scroll_left) * dpr) / dpr,
+                   std::round((std::max(0.0, (height() - view_height()) / 2) - scroll_top) * dpr) / dpr);
 }
 
 QPointF DocumentCanvas::to_source(const QPointF& view) const

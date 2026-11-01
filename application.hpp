@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QAbstractListModel>
 #include <QImage>
 #include <QJsonObject>
 #include <QObject>
@@ -7,17 +8,36 @@
 #include <QSettings>
 #include <QString>
 #include <QUrl>
-#include <QVariantList>
 
 #include "capture-session.hpp"
 #include "document.hpp"
 #include "wayfire-client.hpp"
 
+// a list model, a window per row must survive other rows coming and going
+class DocumentList : public QAbstractListModel
+{
+    Q_OBJECT
+
+  public:
+    using QAbstractListModel::QAbstractListModel;
+
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
+    QHash<int, QByteArray> roleNames() const override;
+
+    void add(Document *document);
+    bool remove(Document *document);
+    bool empty() const;
+
+  private:
+    QList<Document *> list;
+};
+
 // the running program: its documents, what starts a capture, and when it may quit
 class Application : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList documents READ documents NOTIFY documentsChanged)
+    Q_PROPERTY(DocumentList *documents READ documents CONSTANT)
     Q_PROPERTY(bool launcherShown READ launcher_shown WRITE set_launcher_shown NOTIFY launcherChanged)
     Q_PROPERTY(bool ownWindowsHidden READ own_windows_hidden NOTIFY ownWindowsChanged)
     Q_PROPERTY(bool playSound READ play_sound WRITE set_play_sound NOTIFY preferencesChanged)
@@ -29,7 +49,7 @@ class Application : public QObject
   public:
     Application(CaptureSession& session, WayfireClient& compositor, QObject *parent = nullptr);
 
-    QVariantList documents() const;
+    DocumentList *documents();
     bool launcher_shown() const;
     void set_launcher_shown(bool shown);
     bool own_windows_hidden() const;
@@ -56,7 +76,6 @@ class Application : public QObject
     Q_INVOKABLE void minimize_window(QObject *window);
 
   signals:
-    void documentsChanged();
     void launcherChanged();
     void ownWindowsChanged();
     void preferencesChanged();
@@ -71,7 +90,7 @@ class Application : public QObject
 
     CaptureSession& session;
     WayfireClient& compositor;
-    QList<Document *> open_documents;
+    DocumentList open_documents;
     QSettings preferences;
     bool launcher = false;
     bool windows_hidden = false;

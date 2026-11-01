@@ -14,6 +14,8 @@ Item {
     // left to right; the last is the default, return presses it
     property var buttons: []
     property int topInset: 0
+    // what escape presses
+    property int cancelIndex: 0
     property bool opened: false
 
     signal chosen(int index)
@@ -37,7 +39,7 @@ Item {
         chosen(index)
     }
 
-    Keys.onEscapePressed: choose(0)
+    Keys.onEscapePressed: choose(cancelIndex)
     Keys.onReturnPressed: choose(buttons.length - 1)
     Keys.onEnterPressed: choose(buttons.length - 1)
 

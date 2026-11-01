@@ -36,15 +36,15 @@ Window {
 
     QtObject {
         id: commands
-        property var about: Shell.AppAction { text: "About Clippings"; onTriggered: launcher.shell.about.show() }
-        property var preferences: Shell.AppAction { text: "Preferences…"; shortcut: "Ctrl+,"; onTriggered: launcher.shell.preferences.show() }
+        property var about: Shell.AppAction { text: "About Clippings"; onTriggered: launcher.shell.about.wanted = true }
+        property var preferences: Shell.AppAction { text: "Preferences…"; shortcut: "Ctrl+,"; onTriggered: launcher.shell.preferences.wanted = true }
         property var openFile: Shell.AppAction { text: "Open…"; shortcut: "Ctrl+O"; onTriggered: openDialog.open() }
         property var closeWindow: Shell.AppAction { text: "Close"; shortcut: "Ctrl+W"; onTriggered: launcher.close() }
         property var captureSelection: Shell.AppAction { text: "Selection"; shortcut: "Ctrl+Shift+4"; onTriggered: app.capture(CaptureSession.Selection, true) }
         property var captureWindow: Shell.AppAction { text: "Window"; shortcut: "Ctrl+Shift+5"; onTriggered: app.capture(CaptureSession.Window, true) }
         property var captureScreen: Shell.AppAction { text: "Screen"; shortcut: "Ctrl+Shift+3"; onTriggered: app.capture(CaptureSession.Screen, true) }
         property var captureAll: Shell.AppAction { text: "All Screens"; shortcut: "Ctrl+Shift+6"; onTriggered: app.capture(CaptureSession.AllScreens, true) }
-        property var help: Shell.AppAction { text: "Clippings Help"; onTriggered: launcher.shell.help.show() }
+        property var help: Shell.AppAction { text: "Clippings Help"; onTriggered: launcher.shell.help.wanted = true }
     }
 
     Shell.WindowMenuBar {

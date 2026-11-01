@@ -10,6 +10,10 @@ import "Look.js" as Look
 Window {
     id: preferences
 
+    property bool wanted: false
+    visible: wanted && !app.ownWindowsHidden
+    onClosing: wanted = false
+
     readonly property var desktop: settings
 
     title: "Clippings Preferences"

@@ -10,6 +10,10 @@ Window {
 
     readonly property var desktop: settings
 
+    property bool wanted: false
+    visible: wanted && !app.ownWindowsHidden
+    onClosing: wanted = false
+
     title: "Clippings"
     width: 417
     height: 136
@@ -18,7 +22,7 @@ Window {
     Connections {
         target: app
         function onAlert(message, detail) {
-            alert.show()
+            alert.wanted = true
             sheet.open(message, detail, ["OK"])
         }
     }
@@ -27,6 +31,6 @@ Window {
         id: sheet
         settings: alert.desktop
         iconSource: app.iconSource
-        onChosen: alert.close()
+        onChosen: alert.wanted = false
     }
 }

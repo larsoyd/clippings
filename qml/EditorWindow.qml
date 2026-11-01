@@ -113,8 +113,8 @@ Window {
     QtObject {
         id: commands
 
-        property var about: Shell.AppAction { text: "About Clippings"; onTriggered: editor.shell.about.show() }
-        property var preferences: Shell.AppAction { text: "Preferences…"; shortcut: "Ctrl+,"; onTriggered: editor.shell.preferences.show() }
+        property var about: Shell.AppAction { text: "About Clippings"; onTriggered: editor.shell.about.wanted = true }
+        property var preferences: Shell.AppAction { text: "Preferences…"; shortcut: "Ctrl+,"; onTriggered: editor.shell.preferences.wanted = true }
 
         property var openFile: Shell.AppAction { text: "Open…"; shortcut: "Ctrl+O"; onTriggered: openDialog.open() }
         property var closeWindow: Shell.AppAction { text: "Close"; shortcut: "Ctrl+W"; onTriggered: editor.close() }
@@ -156,13 +156,13 @@ Window {
             shortcut: "Ctrl+I"
             glyph: "InspectorGeneralInfo"
             shortLabel: "Info"
-            onTriggered: inspectorWindow.visible = !inspectorWindow.visible
+            onTriggered: inspectorWindow.wanted = !inspectorWindow.wanted
         }
 
         property var minimize: Shell.AppAction { text: "Minimize"; shortcut: "Ctrl+M"; onTriggered: app.minimize_window(editor) }
         property var zoomWindow: Shell.AppAction { text: "Zoom"; onTriggered: editor.visibility === Window.Maximized ? editor.showNormal() : editor.showMaximized() }
         property var bringAll: Shell.AppAction { text: "Bring All to Front"; onTriggered: app.bring_forward() }
-        property var help: Shell.AppAction { text: "Clippings Help"; onTriggered: editor.shell.help.show() }
+        property var help: Shell.AppAction { text: "Clippings Help"; onTriggered: editor.shell.help.wanted = true }
     }
 
     AppMenus {
@@ -322,6 +322,7 @@ Window {
 
         Shell.AlertSheet {
             id: sheet
+            cancelIndex: 1
             settings: editor.desktop
             iconSource: app.iconSource
             topInset: toolBar.height
@@ -348,7 +349,6 @@ Window {
     InspectorWindow {
         id: inspectorWindow
         document: editor.document
-        popupArt: editor.art
         transientParent: editor
     }
 }

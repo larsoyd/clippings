@@ -104,6 +104,7 @@ int main(int argc, char **argv)
 
     qmlRegisterType<DocumentCanvas>("Clippings", 1, 0, "DocumentCanvas");
     qmlRegisterUncreatableType<Document>("Clippings", 1, 0, "Document", QStringLiteral("made by the program"));
+    qmlRegisterUncreatableType<DocumentList>("Clippings", 1, 0, "DocumentList", QStringLiteral("made by the program"));
     qmlRegisterUncreatableType<CaptureSession>("Clippings", 1, 0, "CaptureSession", QStringLiteral("made by the program"));
 
     QQmlApplicationEngine engine;

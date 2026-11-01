@@ -9,8 +9,11 @@ import "Look.js" as Look
 Window {
     id: inspector
 
+    property bool wanted: false
+    visible: wanted && !app.ownWindowsHidden
+    onClosing: wanted = false
+
     required property var document
-    property string popupArt: ""
 
     readonly property var desktop: settings
     readonly property var font: settings.theme.fonts.interface
