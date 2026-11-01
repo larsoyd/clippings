@@ -83,10 +83,7 @@ QString copy_image(const QImage& image, const QString& wl_copy)
         return QStringLiteral("The image could not be encoded.");
     }
 
-    // its daemon inherits these, a pipe here would never close
     QProcess process;
-    process.setStandardOutputFile(QProcess::nullDevice());
-    process.setStandardErrorFile(QProcess::nullDevice());
     process.start(wl_copy, {QStringLiteral("--type"), QStringLiteral("image/png")});
     if (!process.waitForStarted(COPY_TIMEOUT_MS))
     {
