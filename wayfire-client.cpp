@@ -210,6 +210,6 @@ QImage WayfireClient::window_picture(qint64 id, const QString& file_path, bool w
         return {};
     }
 
-    return QImage(reinterpret_cast<const uchar *>(pixels.constData()), width, height, width * 4, QImage::Format_RGBA8888_Premultiplied)
+    return QImage(reinterpret_cast<const uchar *>(pixels.constData()), width, height, width * 4, QImage::Format_RGBA8888)
         .convertToFormat(QImage::Format_ARGB32_Premultiplied);
 }
