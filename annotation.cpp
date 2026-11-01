@@ -246,10 +246,8 @@ void burn(QImage& image, const Annotation& annotation)
 
         if (annotation.kind == Tool::Redact)
         {
-            // source mode so a transparent pixel loses its colour as well
-            QPainter painter(&image);
-            painter.setCompositionMode(QPainter::CompositionMode_Source);
-            painter.fillRect(area, QColor(annotation.stroke.red(), annotation.stroke.green(), annotation.stroke.blue()));
+            // opaque whatever the stroke says, so nothing beneath survives
+            QPainter(&image).fillRect(area, QColor(annotation.stroke.red(), annotation.stroke.green(), annotation.stroke.blue()));
         }
         else if (annotation.kind == Tool::Pixelate)
         {

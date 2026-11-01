@@ -30,6 +30,7 @@ class CheckCore : public QObject
     void lost_save_point_stays_modified();
     void history_stops_growing();
     void restyling_selection_is_one_step();
+    void replacing_with_the_same_is_no_edit();
     void selected_follows_removal();
     void hit_finds_topmost();
     void hollow_shapes_ignore_their_middle();

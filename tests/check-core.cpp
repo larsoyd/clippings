@@ -321,6 +321,16 @@ void CheckCore::restyling_selection_is_one_step()
     QCOMPARE(document.annotations()[0].stroke, QColor(Qt::black));
 }
 
+void CheckCore::replacing_with_the_same_is_no_edit()
+{
+    Document document(solid(50, 50, Qt::white), QStringLiteral("t"), 1);
+    document.add(shape(Tool::Line, QPointF(0, 10), QPointF(50, 10)));
+    document.replace(0, document.annotations()[0]);
+    document.undo();
+    QVERIFY(!document.can_undo());
+    QCOMPARE(document.annotations().size(), 0);
+}
+
 void CheckCore::selected_follows_removal()
 {
     Document document(solid(50, 50, Qt::white), QStringLiteral("t"), 1);
