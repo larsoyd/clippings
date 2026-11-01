@@ -24,6 +24,7 @@ take_app() { # package pattern
 mkdir -p "$work/root" "$work/icon" "$work/art/glyphs"
 take_app AdditionalEssentials './Applications/Utilities/Grab.app/Contents/Resources/appicon.icns'
 take_app Essentials './Applications/Preview.app/Contents/Resources/*.pdf'
+take_app Essentials './usr/sbin/screencapture'
 
 grab="$work/root/Applications/Utilities/Grab.app/Contents/Resources/appicon.icns"
 preview="$work/root/Applications/Preview.app/Contents/Resources"
@@ -44,6 +45,25 @@ for name in TB_selection TB_crop TB_annotArrowTemplate TB_annotLineThicknessTemp
     # png, these pdfs carry soft masks that an svg renderer may drop
     pdftocairo -png -transp -singlefile -scale-to 64 "$preview/$name.pdf" "$work/art/glyphs/$name"
     magick "$work/art/glyphs/$name.png" -channel RGB -evaluate set 100% +channel "$work/art/glyphs/$name-white.png"
+done
+
+# the crosshair lives inside the binary as two png files, one for each density
+python3 -I - "$work/root/usr/sbin/screencapture" "$work/art" <<'PY'
+import sys
+
+data = open(sys.argv[1], "rb").read()
+start = data.find(b"\x89PNG\r\n\x1a\n")
+for name in ("crosshair.png", "crosshair@2x.png"):
+    end = data.index(b"IEND", start) + 8
+    with open(f"{sys.argv[2]}/{name}", "wb") as file:
+        file.write(data[start:end])
+    start = data.find(b"\x89PNG\r\n\x1a\n", end)
+PY
+[[ -s $work/art/crosshair@2x.png ]] || { echo "refused: no crosshair" >&2; exit 1; }
+# dark art, a thin light edge keeps it visible on dark desktops
+for name in crosshair.png crosshair@2x.png; do
+    magick "$work/art/$name" \( +clone -channel RGB -evaluate set 100% +channel -morphology Dilate Diamond:1 -channel A -evaluate multiply 0.8 +channel \) \
+        +swap -composite "$work/art/$name"
 done
 
 mkdir -p "$(dirname "$out")"

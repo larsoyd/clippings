@@ -99,30 +99,24 @@ Item {
         }
     }
 
-    Rectangle {
-        // the measure stays with the pointer, the way the period's capture cursor carries it
+    // white on a black edge as the original draws it, larger so it reads on today's displays
+    Text {
         visible: overlay.pointerHere && overlay.shown
-        x: Math.min(overlay.pointerX + 14, overlay.width - width - 4)
-        y: Math.min(overlay.pointerY + 14, overlay.height - height - 4)
-        width: size.implicitWidth + 12
-        height: size.implicitHeight + 4
-        radius: 3
-        color: "#b0000000"
-        Text {
-            id: size
-            anchors.centerIn: parent
-            text: session.pixelSize.width + " × " + session.pixelSize.height
-            color: "#ffffff"
-            font.family: overlay.theme.fonts.interface.family
-            font.pixelSize: 11
-        }
+        x: Math.min(overlay.pointerX + 18, overlay.width - width - 4)
+        y: Math.min(overlay.pointerY + 18, overlay.height - height - 4)
+        text: session.pixelSize.width + " × " + session.pixelSize.height
+        color: "#ffffff"
+        style: Text.Outline
+        styleColor: "#000000"
+        font.family: overlay.theme.fonts.interface.family
+        font.pixelSize: 12
     }
 
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton
-        cursorShape: session.mode === CaptureSession.Selection ? Qt.CrossCursor : Qt.PointingHandCursor
+        objectName: "pointerArea"
         onPositionChanged: mouse => session.pointer_moved(mouse.x + overlay.outputX, mouse.y + overlay.outputY)
         onPressed: mouse => session.pressed(mouse.x + overlay.outputX, mouse.y + overlay.outputY)
         onReleased: mouse => session.released(mouse.x + overlay.outputX, mouse.y + overlay.outputY)

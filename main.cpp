@@ -116,7 +116,7 @@ int main(int argc, char **argv)
         engine.rootContext()->setContextProperty(QStringLiteral("settings"), settings.value());
     });
 
-    CaptureOverlays overlays(engine, session, qml_directory());
+    CaptureOverlays overlays(engine, session, qml_directory(), app.art_folder());
     session.set_overlays(&overlays);
     QObject::connect(&application, &QGuiApplication::screenRemoved, &session, [&] { session.displays_changed(); });
     QObject::connect(&application, &QGuiApplication::screenAdded, &session, [&] { session.displays_changed(); });

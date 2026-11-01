@@ -3,8 +3,11 @@
 #include "capture-session.hpp"
 
 #include <LayerShellQt/Window>
+#include <QCursor>
 #include <QGuiApplication>
+#include <QPixmap>
 #include <QQmlEngine>
+#include <QQuickItem>
 #include <QScreen>
 
 #include <cstdio>
@@ -31,8 +34,9 @@ QImage FrozenImages::requestImage(const QString& id, QSize *size, const QSize&)
     return output->image;
 }
 
-CaptureOverlays::CaptureOverlays(QQmlEngine& qml_engine, const CaptureSession& capture, const QString& directory)
-    : engine(qml_engine), session(capture), qml_directory(directory)
+CaptureOverlays::CaptureOverlays(QQmlEngine& qml_engine, const CaptureSession& capture, const QString& directory,
+                                 const QString& art)
+    : engine(qml_engine), session(capture), qml_directory(directory), art_folder(art)
 {
 }
 
@@ -86,8 +90,15 @@ void CaptureOverlays::show_selection()
         layer->setScreen(screen);
         view->show();
         views.append(view);
+        apply_cursor(view);
     }
 
+    QObject::connect(&session, &CaptureSession::modeChanged, views.first(), [this] {
+        for (QQuickView *view : std::as_const(views))
+        {
+            apply_cursor(view);
+        }
+    });
     keyboard_output = session.pointer_output();
     QObject::connect(&session, &CaptureSession::selectionChanged, views.first(), [this] { follow_pointer(); });
 }
@@ -108,6 +119,32 @@ void CaptureOverlays::follow_pointer()
                                                                       ? LayerShellQt::Window::KeyboardInteractivityExclusive
                                                                       : LayerShellQt::Window::KeyboardInteractivityNone);
     }
+}
+
+void CaptureOverlays::apply_cursor(QQuickView *view)
+{
+    auto *area = view->rootObject()->findChild<QQuickItem *>(QStringLiteral("pointerArea"));
+    if (!area)
+    {
+        return;
+    }
+
+    if (session.mode() != CaptureSession::Selection)
+    {
+        area->setCursor(Qt::PointingHandCursor);
+        return;
+    }
+
+    const double density = view->devicePixelRatio();
+    QPixmap picture(art_folder + (density > 1 ? QStringLiteral("/crosshair@2x.png") : QStringLiteral("/crosshair.png")));
+    if (picture.isNull())
+    {
+        area->setCursor(Qt::CrossCursor);
+        return;
+    }
+
+    picture.setDevicePixelRatio(density > 1 ? 2 : 1);
+    area->setCursor(QCursor(picture, 16, 16));
 }
 
 void CaptureOverlays::hide_selection()

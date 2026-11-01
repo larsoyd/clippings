@@ -117,7 +117,7 @@ class Document : public QObject
     int saved_at = -1;
 
     Tool current_tool = Tool::Select;
-    QColor stroke = QColor(0xd0, 0x21, 0x1c);
+    QColor stroke = QColor(0xf7, 0x4a, 0x3e);
     QColor fill = Qt::transparent;
     qreal width = 4;
     qreal text_size = 24;

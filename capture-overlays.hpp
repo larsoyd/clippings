@@ -24,7 +24,7 @@ class FrozenImages : public QQuickImageProvider
 class CaptureOverlays : public OverlayHost
 {
   public:
-    CaptureOverlays(QQmlEngine& engine, const CaptureSession& session, const QString& qml_directory);
+    CaptureOverlays(QQmlEngine& engine, const CaptureSession& session, const QString& qml_directory, const QString& art_folder);
     ~CaptureOverlays() override;
 
     void show_selection() override;
@@ -35,10 +35,12 @@ class CaptureOverlays : public OverlayHost
   private:
     QQuickView *make_view(const QString& file, const QVariantMap& properties);
     void follow_pointer();
+    void apply_cursor(QQuickView *view);
 
     QQmlEngine& engine;
     const CaptureSession& session;
     QString qml_directory;
+    QString art_folder;
     QList<QQuickView *> views;
     QString keyboard_output;
     QQuickView *countdown = nullptr;
