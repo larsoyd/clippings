@@ -74,9 +74,9 @@ Item {
         width: overlay.target.width
         height: overlay.target.height
         visible: overlay.shown
-        color: overlay.isSelection ? "#30ffffff" : Qt.rgba(0.32, 0.6, 0.86, 0.32)
+        color: overlay.isSelection ? Qt.rgba(0.53, 0.53, 0.53, 0.25) : Qt.rgba(0.53, 0.73, 0.91, 0.5)
         border.width: 1
-        border.color: overlay.isSelection ? "#c0ffffff" : "#b05199db"
+        border.color: overlay.isSelection ? "#ffffff" : "#b05199db"
 
         Rectangle {
             anchors.fill: parent
@@ -93,8 +93,8 @@ Item {
                 width: 9
                 height: 9
                 radius: 4.5
-                color: "#ffffff"
-                border.color: "#266ed8"
+                color: "#266ed8"
+                border.color: "#ffffff"
             }
         }
     }

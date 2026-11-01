@@ -258,8 +258,8 @@ void DocumentCanvas::paint(QPainter *painter)
 
 static void draw_handle(QPainter *painter, const QPointF& at)
 {
-    painter->setPen(QPen(QColor(0x26, 0x6e, 0xd8), 1));
-    painter->setBrush(Qt::white);
+    painter->setPen(QPen(Qt::white, 1));
+    painter->setBrush(QColor(0x26, 0x6e, 0xd8));
     painter->drawEllipse(at, HANDLE_RADIUS, HANDLE_RADIUS);
 }
 
