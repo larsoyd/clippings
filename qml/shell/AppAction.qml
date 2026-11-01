@@ -10,6 +10,8 @@ QtObject {
     property bool checked: false
     // a toolbar picture from the art folder, and the words where it's missing
     property string glyph: ""
+    // a desktop icon by name, shown beside the small words
+    property string icon: ""
     property string shortLabel: text
 
     signal triggered()

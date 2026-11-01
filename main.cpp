@@ -17,6 +17,7 @@
 
 #include <cstdio>
 
+#include "themed-icons.hpp"
 #include "application.hpp"
 #include "capture-overlays.hpp"
 #include "capture-session.hpp"
@@ -109,6 +110,7 @@ int main(int argc, char **argv)
 
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("frozen"), new FrozenImages(session));
+    engine.addImageProvider(QStringLiteral("themed"), new ThemedIcons);
     engine.rootContext()->setContextProperty(QStringLiteral("settings"), settings.value());
     engine.rootContext()->setContextProperty(QStringLiteral("app"), &app);
     engine.rootContext()->setContextProperty(QStringLiteral("session"), &session);

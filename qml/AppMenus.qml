@@ -23,6 +23,7 @@ Shell.WindowMenuBar {
         Shell.ActionItem { action: bar.c.closeWindow }
         Shell.ActionItem { action: bar.c.save }
         Shell.ActionItem { action: bar.c.saveAs }
+        Shell.ActionItem { action: bar.c.saveToPath }
         Shell.ActionItem { action: bar.c.saveAndCopy }
     }
     Platform.Menu {

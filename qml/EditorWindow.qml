@@ -23,6 +23,9 @@ Window {
     property bool editBarShown: true
     property var afterSave: null
     property var pendingClose: null
+    // nobody cancels a dialog this fast, so a refusal sooner means it never opened
+    readonly property int chooserFailMs: 400
+    property double chooserOpened: 0
 
     title: document.title + (document.modified && document.path !== "" ? " — Edited" : "")
     visible: !app.ownWindowsHidden
@@ -79,7 +82,17 @@ Window {
     function saveAs() {
         console.log("[editor] save as", app.default_save_url(document))
         saveDialog.currentFile = app.default_save_url(document)
+        chooserOpened = Date.now()
         saveDialog.open()
+        if (!saveDialog.visible) {
+            askForPath("no-dialog", "The file chooser isn’t available.")
+        }
+    }
+
+    function askForPath(reason, words) {
+        const path = app.file_of(app.default_save_url(document))
+        console.log("[editor] no file chooser reason=" + reason, "path=" + path)
+        pathSheet.open(path, words, "Type the full path to save the picture to. The ending picks the format.")
     }
 
     function copyPicture() {
@@ -110,7 +123,13 @@ Window {
         title: "Save"
         nameFilters: ["PNG (*.png)", "JPEG (*.jpg *.jpeg)", "TIFF (*.tif *.tiff)", "WebP (*.webp)"]
         onAccepted: editor.finishSave(app.file_of(file))
-        onRejected: editor.afterSave = null
+        onRejected: {
+            if (Date.now() - editor.chooserOpened < editor.chooserFailMs) {
+                editor.askForPath("refused", "The file chooser couldn’t open.")
+                return
+            }
+            editor.afterSave = null
+        }
     }
     Platform.FileDialog {
         id: openDialog
@@ -129,7 +148,12 @@ Window {
         property var openFile: Shell.AppAction { text: "Open…"; shortcut: "Ctrl+O"; onTriggered: openDialog.open() }
         property var closeWindow: Shell.AppAction { text: "Close"; shortcut: "Ctrl+W"; onTriggered: editor.close() }
         property var save: Shell.AppAction { text: "Save"; shortcut: "Ctrl+S"; shortLabel: "Save"; onTriggered: editor.save() }
-        property var saveAs: Shell.AppAction { text: "Save As…"; shortcut: "Ctrl+Shift+S"; shortLabel: "Save As…"; onTriggered: editor.saveAs() }
+        property var saveAs: Shell.AppAction { text: "Save As…"; shortcut: "Ctrl+Shift+S"; shortLabel: "Save As…"; icon: "document-save-as"; onTriggered: editor.saveAs() }
+        property var saveToPath: Shell.AppAction {
+            text: "Save to a Path…"
+            shortcut: "Ctrl+Alt+Shift+S"
+            onTriggered: editor.askForPath("asked", "Save to a path")
+        }
         property var saveAndCopy: Shell.AppAction {
             text: "Save and Copy"
             shortcut: "Ctrl+Alt+S"
@@ -141,7 +165,7 @@ Window {
 
         property var undo: Shell.AppAction { text: "Undo"; shortcut: "Ctrl+Z"; enabled: editor.document.canUndo; onTriggered: editor.document.undo() }
         property var redo: Shell.AppAction { text: "Redo"; shortcut: "Ctrl+Shift+Z"; enabled: editor.document.canRedo; onTriggered: editor.document.redo() }
-        property var copy: Shell.AppAction { text: "Copy"; shortcut: "Ctrl+C"; shortLabel: "Copy"; onTriggered: editor.copyPicture() }
+        property var copy: Shell.AppAction { text: "Copy"; shortcut: "Ctrl+C"; shortLabel: "Copy"; icon: "edit-copy"; onTriggered: editor.copyPicture() }
         property var deleteSelected: Shell.AppAction { text: "Delete"; enabled: editor.document.selected >= 0; onTriggered: editor.document.remove_selected() }
 
         property var captureSelection: Shell.AppAction { text: "Selection"; shortcut: "Ctrl+Shift+4"; onTriggered: app.capture(CaptureSession.Selection, true) }
@@ -375,6 +399,14 @@ Window {
                 }
             }
         }
+        Shell.PathSheet {
+            id: pathSheet
+            settings: editor.desktop
+            topInset: toolBar.height
+            onAccepted: path => editor.finishSave(path)
+            onCancelled: editor.afterSave = null
+        }
+
         Shell.AlertSheet {
             id: failure
             settings: editor.desktop

@@ -11,6 +11,7 @@ Item {
     required property string artFolder
     property var action: null
     property string glyph: action?.glyph ?? ""
+    property string icon: action?.icon ?? ""
     property string label: action?.shortLabel ?? ""
     property string tip: action?.text ?? ""
     property bool checked: action?.checked ?? false
@@ -50,15 +51,40 @@ Item {
         }
     }
 
-    Glyph {
+    readonly property real ink: !button.enabled ? 0.3 : Window.active ? 0.8 : 0.5
+
+    Row {
         id: shape
         anchors.centerIn: parent
-        folder: button.artFolder
-        name: button.glyph
-        fallback: button.label
-        labelFont: button.theme.fonts.interface
-        side: 16
-        inkOpacity: !button.enabled ? 0.3 : Window.active ? 0.8 : 0.5
+        spacing: 4
+
+        Glyph {
+            anchors.verticalCenter: parent.verticalCenter
+            visible: button.icon === ""
+            folder: button.artFolder
+            name: button.glyph
+            fallback: button.label
+            labelFont: button.theme.fonts.interface
+            side: 16
+            inkOpacity: button.ink
+        }
+        Image {
+            anchors.verticalCenter: parent.verticalCenter
+            visible: button.icon !== ""
+            source: button.icon !== "" ? "image://themed/" + button.icon : ""
+            sourceSize: Qt.size(32, 32)
+            width: 16
+            height: 16
+            opacity: button.enabled ? 1 : 0.4
+        }
+        Text {
+            anchors.verticalCenter: parent.verticalCenter
+            visible: button.icon !== ""
+            text: button.label
+            font.family: button.theme.fonts.interface.family
+            font.pixelSize: button.look.label_size ?? 11
+            opacity: button.ink
+        }
     }
 
     Rectangle {
