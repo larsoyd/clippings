@@ -32,6 +32,6 @@ Window {
             + "Return captures, Escape cancels.\n"
             + "Arrows move the selection, Alt and arrows resize it, Shift makes the step larger.\n"
             + "Space switches between a selection and a window, Tab goes through every mode.\n\n"
-            + "Your picture opens in a new window, where you can mark it up, then save or copy it."
+            + "Your picture opens in a new window. Mark it up, then use Copy or Save As in its tool bar."
     }
 }

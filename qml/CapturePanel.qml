@@ -12,6 +12,7 @@ Item {
     property int mode: CaptureSession.Selection
     property int delay: 0
     property bool pointer: false
+    property bool shadow: true
     property string captureLabel: "Capture"
     property bool canCapture: true
     required property Item popupHost
@@ -20,6 +21,7 @@ Item {
     signal modeChosen(int mode)
     signal delayChosen(int seconds)
     signal pointerChosen(bool shown)
+    signal shadowChosen(bool shown)
     signal captureChosen()
     signal cancelChosen()
 
@@ -98,6 +100,14 @@ Item {
             text: "Show Pointer"
             checked: panel.pointer
             onToggled: checked => panel.pointerChosen(checked)
+        }
+        Shell.CheckBox {
+            anchors.verticalCenter: parent.verticalCenter
+            visible: panel.mode === CaptureSession.Window
+            settings: panel.desktop
+            text: "Shadow"
+            checked: panel.shadow
+            onToggled: checked => panel.shadowChosen(checked)
         }
     }
     Row {

@@ -87,11 +87,13 @@ Window {
             mode: launcher.mode
             delay: session.delay
             pointer: session.pointer
+            shadow: session.windowShadow
             captureLabel: "Start Capture"
             message: "Choose what to capture. This window will not be included in the picture."
             onModeChosen: mode => launcher.mode = mode
             onDelayChosen: seconds => session.delay = seconds
             onPointerChosen: shown => session.pointer = shown
+            onShadowChosen: shown => session.windowShadow = shown
             onCaptureChosen: app.capture(launcher.mode, true)
             onCancelChosen: launcher.close()
         }

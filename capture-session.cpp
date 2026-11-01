@@ -80,6 +80,17 @@ void CaptureSession::set_pointer(bool value)
     emit settingsChanged();
 }
 
+bool CaptureSession::window_shadow() const
+{
+    return with_shadow;
+}
+
+void CaptureSession::set_window_shadow(bool value)
+{
+    with_shadow = value;
+    emit settingsChanged();
+}
+
 bool CaptureSession::running() const
 {
     return current != State::Idle;
@@ -323,7 +334,7 @@ void CaptureSession::take_window_pictures()
         }
 
         const QString file = scratch_file(window.id);
-        const QImage picture = compositor.window_picture(window.id, file);
+        const QImage picture = compositor.window_picture(window.id, file, with_shadow);
         QFile::remove(file);
         if (!picture.isNull())
         {
@@ -582,7 +593,9 @@ void CaptureSession::deliver(const FrozenDesktop& from)
     if (window && window_pictures.contains(window->id))
     {
         image = window_pictures.value(window->id);
-        density = double(image.width()) / std::max(1, area.width());
+        // the picture may reach past the window, the display it sits on says the density
+        const FrozenOutput *output = from.output(window->output);
+        density = output ? output->scale() : density;
     }
     else
     {

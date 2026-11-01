@@ -159,6 +159,7 @@ Item {
             mode: session.mode
             delay: session.delay
             pointer: session.pointer
+            shadow: session.windowShadow
             canCapture: session.target.width > 0
             message: session.mode === CaptureSession.Selection ? "Drag over the portion of the screen you want to capture."
                 : session.mode === CaptureSession.Window ? "Click the window you want to capture." + (session.targetTitle !== "" ? "\n“" + session.targetTitle + "”" : "")
@@ -167,6 +168,7 @@ Item {
             onModeChosen: mode => session.mode = mode
             onDelayChosen: seconds => session.delay = seconds
             onPointerChosen: shown => session.pointer = shown
+            onShadowChosen: shown => session.windowShadow = shown
             onCaptureChosen: session.accept()
             onCancelChosen: session.cancel()
         }

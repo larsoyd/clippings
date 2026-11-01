@@ -173,15 +173,21 @@ bool WayfireClient::focus(qint64 id) const
     return reply.value(QLatin1String("result")).toString() == QLatin1String("ok");
 }
 
-QImage WayfireClient::window_picture(qint64 id, const QString& file_path) const
+QImage WayfireClient::window_picture(qint64 id, const QString& file_path, bool with_shadow) const
 {
     const QJsonObject reply = call(QStringLiteral("window-pictures/write"),
-        {{QStringLiteral("id"), id}, {QStringLiteral("path"), file_path}, {QStringLiteral("largest_side"), LARGEST_PICTURE_SIDE}});
+        {{QStringLiteral("id"), id}, {QStringLiteral("path"), file_path}, {QStringLiteral("largest_side"), LARGEST_PICTURE_SIDE},
+         {QStringLiteral("shadow"), with_shadow}});
     if (reply.contains(QLatin1String("error")) || reply.isEmpty())
     {
         std::fprintf(stderr, "[wayfire] no window picture id=%lld reply=%s\n", qlonglong(id),
                      QJsonDocument(reply).toJson(QJsonDocument::Compact).constData());
         return {};
+    }
+
+    if (with_shadow && !reply.value(QLatin1String("shadow")).toBool())
+    {
+        std::fprintf(stderr, "[wayfire] window pictures have no shadow yet, this compositor plugin is older\n");
     }
 
     QFile file(file_path);
@@ -204,6 +210,6 @@ QImage WayfireClient::window_picture(qint64 id, const QString& file_path) const
         return {};
     }
 
-    return QImage(reinterpret_cast<const uchar *>(pixels.constData()), width, height, width * 4, QImage::Format_RGBA8888)
+    return QImage(reinterpret_cast<const uchar *>(pixels.constData()), width, height, width * 4, QImage::Format_RGBA8888_Premultiplied)
         .convertToFormat(QImage::Format_ARGB32_Premultiplied);
 }

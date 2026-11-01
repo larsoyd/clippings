@@ -26,13 +26,18 @@ class FakeCompositor : public Compositor
     QHash<qint64, QImage> pictures;
     mutable QList<qint64> focused_calls;
     qint64 has_focus = 7;
+    mutable bool asked_shadow = false;
 
     QList<DisplayInfo> displays() const override { return shown; }
     QList<WindowInfo> windows() const override { return open; }
     qint64 focused() const override { return has_focus; }
     QPoint pointer() const override { return {}; }
     bool focus(qint64 id) const override { focused_calls.append(id); return true; }
-    QImage window_picture(qint64 id, const QString&) const override { return pictures.value(id); }
+    QImage window_picture(qint64 id, const QString&, bool with_shadow) const override
+    {
+        asked_shadow = with_shadow;
+        return pictures.value(id);
+    }
 };
 
 class FakeOverlays : public OverlayHost
@@ -363,6 +368,7 @@ void CheckCapture::window_mode_uses_the_window_picture()
     window.id = 11;
     window.pid = 1;
     window.geometry = QRect(10, 10, 30, 30);
+    window.output = QStringLiteral("R");
     window.title = QStringLiteral("Note");
     rig.compositor.open = {window};
     QImage picture(60, 60, QImage::Format_ARGB32_Premultiplied);
@@ -392,17 +398,20 @@ void CheckCapture::window_picture_keeps_its_own_density()
     WindowInfo window;
     window.id = 13;
     window.pid = 1;
-    window.geometry = QRect(-20, 10, 40, 30);
+    window.geometry = QRect(-90, 10, 40, 30);
+    window.output = QStringLiteral("L");
     rig.compositor.open = {window};
-    QImage picture(40, 30, QImage::Format_ARGB32_Premultiplied);
+    QImage picture(80, 70, QImage::Format_ARGB32_Premultiplied);
     picture.fill(Qt::green);
     rig.compositor.pictures.insert(13, picture);
 
     QSignalSpy spy(&rig.session, &CaptureSession::finished);
     rig.session.begin(CaptureSession::Window, false);
     QVERIFY(rig.frozen());
-    rig.session.pointer_moved(0, 20);
+    QVERIFY(rig.compositor.asked_shadow);
+    rig.session.pointer_moved(-80, 20);
     rig.session.accept();
+    QCOMPARE(spy.at(0).at(0).value<QImage>().size(), QSize(80, 70));
     QCOMPARE(spy.at(0).at(1).toDouble(), 1.0);
 }
 

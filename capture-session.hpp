@@ -18,6 +18,7 @@ class CaptureSession : public QObject
     Q_PROPERTY(int mode READ mode WRITE set_mode NOTIFY modeChanged)
     Q_PROPERTY(int delay READ delay WRITE set_delay NOTIFY settingsChanged)
     Q_PROPERTY(bool pointer READ pointer WRITE set_pointer NOTIFY settingsChanged)
+    Q_PROPERTY(bool windowShadow READ window_shadow WRITE set_window_shadow NOTIFY settingsChanged)
     Q_PROPERTY(bool running READ running NOTIFY stateChanged)
     Q_PROPERTY(bool selecting READ selecting NOTIFY stateChanged)
     Q_PROPERTY(QRect selection READ selection NOTIFY selectionChanged)
@@ -58,6 +59,8 @@ class CaptureSession : public QObject
     void set_delay(int seconds);
     bool pointer() const;
     void set_pointer(bool with_pointer);
+    bool window_shadow() const;
+    void set_window_shadow(bool with_shadow);
     bool running() const;
     bool selecting() const;
     State state() const;
@@ -132,6 +135,7 @@ class CaptureSession : public QObject
     Mode current_mode = Selection;
     int delay_seconds = 0;
     bool with_pointer = false;
+    bool with_shadow = true;
     bool own_windows_hidden = false;
     qint64 focused_before = -1;
     int freeze_count = 0;

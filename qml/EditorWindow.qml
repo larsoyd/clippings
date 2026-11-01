@@ -82,6 +82,15 @@ Window {
         saveDialog.open()
     }
 
+    function copyPicture() {
+        const problem = app.copy(document)
+        if (problem !== "") {
+            failure.open("The picture could not be copied.", problem, ["OK"])
+            return
+        }
+        confirmation.restart()
+    }
+
     function finishSave(path) {
         const problem = document.save_to(path)
         report(problem)
@@ -119,20 +128,20 @@ Window {
 
         property var openFile: Shell.AppAction { text: "Open…"; shortcut: "Ctrl+O"; onTriggered: openDialog.open() }
         property var closeWindow: Shell.AppAction { text: "Close"; shortcut: "Ctrl+W"; onTriggered: editor.close() }
-        property var save: Shell.AppAction { text: "Save"; shortcut: "Ctrl+S"; onTriggered: editor.save() }
-        property var saveAs: Shell.AppAction { text: "Save As…"; shortcut: "Ctrl+Shift+S"; onTriggered: editor.saveAs() }
+        property var save: Shell.AppAction { text: "Save"; shortcut: "Ctrl+S"; shortLabel: "Save"; onTriggered: editor.save() }
+        property var saveAs: Shell.AppAction { text: "Save As…"; shortcut: "Ctrl+Shift+S"; shortLabel: "Save As…"; onTriggered: editor.saveAs() }
         property var saveAndCopy: Shell.AppAction {
             text: "Save and Copy"
             shortcut: "Ctrl+Alt+S"
             onTriggered: {
-                editor.afterSave = () => editor.report(app.copy(editor.document))
+                editor.afterSave = () => editor.copyPicture()
                 editor.save()
             }
         }
 
         property var undo: Shell.AppAction { text: "Undo"; shortcut: "Ctrl+Z"; enabled: editor.document.canUndo; onTriggered: editor.document.undo() }
         property var redo: Shell.AppAction { text: "Redo"; shortcut: "Ctrl+Shift+Z"; enabled: editor.document.canRedo; onTriggered: editor.document.redo() }
-        property var copy: Shell.AppAction { text: "Copy"; shortcut: "Ctrl+C"; glyph: "copy"; shortLabel: "Copy"; onTriggered: editor.report(app.copy(editor.document)) }
+        property var copy: Shell.AppAction { text: "Copy"; shortcut: "Ctrl+C"; shortLabel: "Copy"; onTriggered: editor.copyPicture() }
         property var deleteSelected: Shell.AppAction { text: "Delete"; enabled: editor.document.selected >= 0; onTriggered: editor.document.remove_selected() }
 
         property var captureSelection: Shell.AppAction { text: "Selection"; shortcut: "Ctrl+Shift+4"; onTriggered: app.capture(CaptureSession.Selection, true) }
@@ -234,6 +243,33 @@ Window {
                 anchors.rightMargin: 8
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 8
+                Text {
+                    id: copied
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "Copied"
+                    opacity: 0
+                    color: "#404040"
+                    font.family: editor.theme.fonts.interface.family
+                    font.pixelSize: 11
+                    SequentialAnimation {
+                        id: confirmation
+                        PropertyAction { target: copied; property: "opacity"; value: 1 }
+                        PauseAnimation { duration: 1400 }
+                        NumberAnimation { target: copied; property: "opacity"; to: 0; duration: 300 }
+                    }
+                }
+                Shell.ToolButton {
+                    theme: editor.theme
+                    themeDirectory: editor.themeDirectory
+                    artFolder: editor.art
+                    action: commands.copy
+                }
+                Shell.ToolButton {
+                    theme: editor.theme
+                    themeDirectory: editor.themeDirectory
+                    artFolder: editor.art
+                    action: commands.saveAs
+                }
                 Shell.ToolButton {
                     theme: editor.theme
                     themeDirectory: editor.themeDirectory

@@ -64,9 +64,11 @@ Application::Application(CaptureSession& capture, WayfireClient& wayfire, QObjec
 {
     session.set_delay(preferences.value(QStringLiteral("delay"), 0).toInt());
     session.set_pointer(preferences.value(QStringLiteral("pointer"), false).toBool());
+    session.set_window_shadow(preferences.value(QStringLiteral("shadow"), true).toBool());
     connect(&session, &CaptureSession::settingsChanged, this, [this] {
         preferences.setValue(QStringLiteral("delay"), session.delay());
         preferences.setValue(QStringLiteral("pointer"), session.pointer());
+        preferences.setValue(QStringLiteral("shadow"), session.window_shadow());
     });
     connect(&session, &CaptureSession::finished, this, &Application::add_capture);
     connect(&session, &CaptureSession::failed, this, &Application::capture_failed);

@@ -16,7 +16,7 @@ class Compositor
     virtual qint64 focused() const = 0;
     virtual QPoint pointer() const = 0;
     virtual bool focus(qint64 id) const = 0;
-    virtual QImage window_picture(qint64 id, const QString& file) const = 0;
+    virtual QImage window_picture(qint64 id, const QString& file, bool with_shadow) const = 0;
 };
 
 // the windows and panels of a capture
