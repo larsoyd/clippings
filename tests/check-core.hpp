@@ -9,6 +9,7 @@ class CheckCore : public QObject
   private slots:
     void compose_copies_exact_pixels();
     void compose_crosses_mixed_scales_and_negative_origin();
+    void density_ignores_the_order_of_displays();
     void compose_leaves_gaps_clear();
     void compose_outside_every_display_is_empty();
     void output_lookup_honours_negative_layout();

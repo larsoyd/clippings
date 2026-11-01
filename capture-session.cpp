@@ -283,11 +283,6 @@ void CaptureSession::pictures_grabbed(const QHash<QString, QImage>& pictures)
     FrozenDesktop desktop;
     for (const DisplayInfo& display : displays)
     {
-        if (!pictures.contains(display.name))
-        {
-            finish_with_failure(QStringLiteral("no picture of display %1").arg(display.name));
-            return;
-        }
         desktop.add({display.name, display.logical, pictures.value(display.name)});
     }
 

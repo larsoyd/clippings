@@ -30,6 +30,7 @@ class CheckCapture : public QObject
     void window_mode_falls_back_to_the_frozen_screen();
     void screen_and_all_modes();
     void cancel_restores_focus_and_gives_nothing();
+    void cancel_while_grabbing_stops_the_grab();
     void failed_grab_ends_the_capture();
     void display_change_ends_the_capture();
     void leaving_out_own_windows_waits_for_them();

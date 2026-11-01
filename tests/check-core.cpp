@@ -72,6 +72,14 @@ void CheckCore::compose_crosses_mixed_scales_and_negative_origin()
     QCOMPARE(both.pixelColor(101, 50), QColor(Qt::blue));
 }
 
+void CheckCore::density_ignores_the_order_of_displays()
+{
+    FrozenDesktop desktop;
+    desktop.add({QStringLiteral("sharp"), QRect(0, 0, 100, 100), solid(200, 200, Qt::blue)});
+    desktop.add({QStringLiteral("coarse"), QRect(100, 0, 100, 100), solid(100, 100, Qt::red)});
+    QCOMPARE(desktop.density(QRect(50, 0, 100, 50)), 2.0);
+}
+
 void CheckCore::compose_leaves_gaps_clear()
 {
     FrozenDesktop desktop;

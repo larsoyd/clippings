@@ -436,6 +436,18 @@ void CheckCapture::cancel_restores_focus_and_gives_nothing()
     QVERIFY(rig.session.begin(CaptureSession::Selection, false));
 }
 
+void CheckCapture::cancel_while_grabbing_stops_the_grab()
+{
+    Rig rig;
+    QVERIFY(rig.session.begin(CaptureSession::Selection, false));
+    QVERIFY(rig.grabber.busy());
+    rig.session.cancel();
+    QVERIFY(!rig.grabber.busy());
+    QTest::qWait(300);
+    QCOMPARE(rig.overlays.selection_shown, 0);
+    QCOMPARE(rig.session.state(), CaptureSession::State::Idle);
+}
+
 void CheckCapture::failed_grab_ends_the_capture()
 {
     QTemporaryDir folder;
