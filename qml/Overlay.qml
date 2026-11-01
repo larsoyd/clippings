@@ -22,7 +22,6 @@ Item {
     readonly property bool pointerHere: pointerX >= 0 && pointerY >= 0 && pointerX < width && pointerY < height
     readonly property bool isSelection: session.mode === CaptureSession.Selection
 
-    focus: true
     Component.onCompleted: forceActiveFocus()
 
     Keys.onPressed: event => {

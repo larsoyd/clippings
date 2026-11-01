@@ -520,6 +520,9 @@ void CheckCapture::leaving_out_own_windows_waits_for_them()
     QFile calls(rig.folder.filePath(QStringLiteral("calls")));
     QVERIFY(calls.open(QIODevice::ReadOnly));
     QVERIFY(calls.readAll().contains("-g"));
+    rig.session.set_mode(CaptureSession::Window);
+    rig.session.pointer_moved(20, 20);
+    QVERIFY2(rig.session.target().isEmpty(), "a hidden window of the program can still be picked");
 }
 
 void CheckCapture::own_windows_return_after_cancel()
